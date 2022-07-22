@@ -1,0 +1,6 @@
+{
+  "name": "Plugin for SoundCloud",
+  "version": "1.0.0",
+  "script": "dist/index.js",
+  "description": "Play music from SoundCloud."
+}
