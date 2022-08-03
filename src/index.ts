@@ -1,4 +1,7 @@
-import Soundcloud, { SoundcloudTrackV2 } from "soundcloud.ts";
+import Soundcloud, {
+  SoundcloudTrackV2,
+  SoundcloudTranscoding,
+} from "soundcloud.ts";
 import axios from "axios";
 import "audiogata-plugin-typings";
 let soundcloud: Soundcloud | undefined;
@@ -10,6 +13,14 @@ const getArtwork = (track: SoundcloudTrackV2): ImageInfo[] => {
     { url: artwork.replace("-large", "-t500x500"), height: 500, width: 500 },
   ];
 };
+
+function trackFilter(transcoding: SoundcloudTranscoding) {
+  return (
+    transcoding.format.mime_type === "audio/mpeg" &&
+    transcoding.format.protocol === "progressive"
+  );
+}
+
 async function searchTracks(
   request: SearchRequest
 ): Promise<SearchTrackResult> {
@@ -24,11 +35,7 @@ async function searchTracks(
     apiId: c.id.toString(),
     duration: c.duration / 1000,
     artistName: c.label_name || "",
-    source: c.media.transcodings.find(
-      (t) =>
-        t.format.mime_type === "audio/mpeg" &&
-        t.format.protocol === "progressive"
-    )?.url,
+    source: c.media.transcodings.find(trackFilter)?.url,
     images: getArtwork(c),
   }));
   return {
@@ -41,10 +48,11 @@ async function searchAll(request: SearchRequest): Promise<SearchAllResult> {
   return { tracks };
 }
 
-async function getTrackByUrl(track: Track): Promise<string> {
+async function getTrackByUrl(request: GetTrackUrlRequest): Promise<string> {
   const corsProxy = await application.getCorsProxy();
   let clientId = await soundcloud?.api.getClientID();
-  const source = track.source || "";
+  const track = await soundcloud?.tracks.getV2(request.apiId || "");
+  const source = track?.media.transcodings.find(trackFilter)?.url || "";
   let url = "";
   let connect = source?.includes("secret_token")
     ? `&client_id=${clientId}`
