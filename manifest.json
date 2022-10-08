@@ -1,7 +1,7 @@
 {
   "id": "B9-GwavJJOQpQXotpLZH-",
   "name": "Plugin for SoundCloud",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "script": "dist/index.js",
   "description": "Play music from SoundCloud."
 }
