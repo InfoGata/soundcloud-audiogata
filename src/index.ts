@@ -51,7 +51,7 @@ async function searchTracks(
   request: SearchRequest
 ): Promise<SearchTrackResult> {
   const limit = 50;
-  const offset = request.page?.offset || 0;
+  const offset = request.pageInfo?.offset || 0;
   const trackSearch = await soundcloud?.tracks.searchV2({
     q: request.query,
     limit,
@@ -76,7 +76,7 @@ async function searchPlaylists(
   request: SearchRequest
 ): Promise<SearchPlaylistResult> {
   const limit = 50;
-  const offset = request.page?.offset || 0;
+  const offset = request.pageInfo?.offset || 0;
   const playlistSearch = await soundcloud?.playlists.searchV2({
     q: request.query,
     limit,
