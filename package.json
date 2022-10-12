@@ -1,6 +1,6 @@
 {
   "name": "soundcloud-audiogata",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "",
   "author": "",
   "license": "MIT",
@@ -14,7 +14,7 @@
     "start": "parcel src/index.ts --dist-dir dist/ --no-source-maps"
   },
   "devDependencies": {
-    "audiogata-plugin-typings": "git@gitlab.com:elijahgreen/audiogata-plugin-typings.git",
+    "audiogata-plugin-typings": "1.0.1",
     "buffer": "^6.0.3",
     "events": "^3.3.0",
     "os-browserify": "^0.3.0",
