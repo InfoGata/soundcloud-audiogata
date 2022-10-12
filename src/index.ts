@@ -4,7 +4,6 @@ import Soundcloud, {
   SoundcloudUserV2,
 } from "soundcloud.ts";
 import axios from "axios";
-import "audiogata-plugin-typings";
 let soundcloud: Soundcloud | undefined;
 
 const getArtwork = (track: {

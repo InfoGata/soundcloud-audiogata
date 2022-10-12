@@ -14,7 +14,7 @@
     "start": "parcel src/index.ts --dist-dir dist/ --no-source-maps"
   },
   "devDependencies": {
-    "audiogata-plugin-typings": "1.0.1",
+    "@infogata/audiogata-plugin-typings": "1.0.3",
     "buffer": "^6.0.3",
     "events": "^3.3.0",
     "os-browserify": "^0.3.0",
