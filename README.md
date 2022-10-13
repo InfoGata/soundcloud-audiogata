@@ -1,3 +1,5 @@
 # soundcloud-audiogata
 
-An [audiogata](https://www.audiogata.com) plugin for soundcloud audio.
+An [audiogata](https://github.com/InfoGata/audiogata) plugin for soundcloud audio.
+
+[Installation Link](https://www.audiogata.com/plugininstall?manifestUrl=https://cdn.jsdelivr.net/gh/InfoGata/soundcloud-audiogata@latest/manifest.json)
