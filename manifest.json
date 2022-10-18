@@ -3,5 +3,6 @@
   "name": "Plugin for SoundCloud",
   "version": "1.2.1",
   "script": "dist/index.js",
-  "description": "Play music from SoundCloud."
+  "description": "Play music from SoundCloud.",
+  "updateUrl": "https://cdn.jsdelivr.net/gh/InfoGata/soundcloud-audiogata@latest/manifest.json"
 }
