@@ -15,7 +15,7 @@ describe("soundcloud", () => {
   });
 
   test("should get playlist", async () => {
-    const response = await soundcloud.getPlaylistV2("709929783");
+    const response = await soundcloud.getPlaylistV2("1812649644");
     expect(response.id).toBeTruthy();
   });
 });

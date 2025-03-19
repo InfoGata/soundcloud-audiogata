@@ -1,7 +1,7 @@
 import type {
-  SoundcloudTrackV2,
+  SoundcloudTrack,
   SoundcloudTranscoding,
-  SoundcloudUserV2,
+  SoundcloudUser,
 } from "soundcloud.ts";
 import Soundcloud from "./soundcloud";
 
@@ -10,7 +10,7 @@ export default class SoundcloudPlugn {
 
   private getArtwork = (track: {
     artwork_url: string | null;
-    user: SoundcloudUserV2;
+    user: SoundcloudUser;
   }): ImageInfo[] => {
     let artwork = track.artwork_url ? track.artwork_url : track.user.avatar_url;
     return [
@@ -19,7 +19,7 @@ export default class SoundcloudPlugn {
     ];
   };
 
-  private soundcloudTrackToTrack = (t: SoundcloudTrackV2): Track => {
+  private soundcloudTrackToTrack = (t: SoundcloudTrack): Track => {
     return {
       name: t.title,
       apiId: t.id.toString(),
