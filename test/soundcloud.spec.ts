@@ -18,4 +18,10 @@ describe("soundcloud", () => {
     const response = await soundcloud.getPlaylistV2("1812649644");
     expect(response.id).toBeTruthy();
   });
+
+  test("should get top playlists", async () => {
+    const response = await soundcloud.getTopPlaylistsV2();
+    expect(response).toHaveProperty("collection");
+    expect(response.collection.length).toBeGreaterThan(0);
+  });
 });

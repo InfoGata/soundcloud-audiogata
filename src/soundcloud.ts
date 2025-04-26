@@ -7,6 +7,7 @@ import type {
   SoundcloudTrack,
 } from "soundcloud.ts";
 import { API } from "./api";
+import { SoundcloudMixedSelections } from "./types";
 
 export default class Soundcloud {
   api: API;
@@ -73,5 +74,10 @@ export default class Soundcloud {
     const playlistId = await this.resolveV2(playlistResolvable);
     const response = await this.api.getV2(`playlists/${playlistId}`);
     return this.fetchPlaylistTracks(response) as Promise<SoundcloudPlaylist>;
-  };
+  }
+
+  getTopPlaylistsV2 = async () => {
+    const response = await this.api.getV2("mixed-selections");
+    return response as Promise<SoundcloudMixedSelections>;
+  }
 }

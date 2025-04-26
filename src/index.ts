@@ -21,6 +21,7 @@ export const init = async () => {
   application.onSearchPlaylists = plugin.searchPlaylists.bind(plugin);
   application.onGetPlaylistTracks = plugin.getPlaylistTracks.bind(plugin);
   application.onGetTrackUrl = plugin.getTrackByUrl.bind(plugin);
+  application.onGetTopItems = plugin.getTopItems.bind(plugin);
 };
 
 init();

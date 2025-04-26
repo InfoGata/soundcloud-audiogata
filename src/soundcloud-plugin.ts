@@ -1,23 +1,36 @@
 import type {
+  SoundcloudPlaylist,
   SoundcloudTrack,
   SoundcloudTranscoding,
   SoundcloudUser,
 } from "soundcloud.ts";
 import Soundcloud from "./soundcloud";
 
+const getArtwork = (track: {
+  artwork_url: string | null;
+  user: SoundcloudUser;
+}): ImageInfo[] => {
+  let artwork = track.artwork_url ? track.artwork_url : track.user.avatar_url;
+  return [
+    { url: artwork, height: 100, width: 100 },
+    { url: artwork.replace("-large", "-t500x500"), height: 500, width: 500 },
+  ];
+};
+
+
+const soundcloudPlaylistToPlaylist = (
+  playlist: SoundcloudPlaylist
+): PlaylistInfo => {
+  return {
+    name: playlist.title,
+    apiId: playlist.id.toString(),
+    images: getArtwork(playlist),
+  };  
+}
+
 export default class SoundcloudPlugn {
   constructor(public soundcloud: Soundcloud) {}
 
-  private getArtwork = (track: {
-    artwork_url: string | null;
-    user: SoundcloudUser;
-  }): ImageInfo[] => {
-    let artwork = track.artwork_url ? track.artwork_url : track.user.avatar_url;
-    return [
-      { url: artwork, height: 100, width: 100 },
-      { url: artwork.replace("-large", "-t500x500"), height: 500, width: 500 },
-    ];
-  };
 
   private soundcloudTrackToTrack = (t: SoundcloudTrack): Track => {
     return {
@@ -26,7 +39,7 @@ export default class SoundcloudPlugn {
       duration: t.duration / 1000,
       artistName: (t.publisher_metadata as any)?.artist || "",
       source: t.media.transcodings.find(this.trackFilter.bind(this))?.url,
-      images: this.getArtwork(t),
+      images: getArtwork(t),
     };
   };
 
@@ -80,13 +93,8 @@ export default class SoundcloudPlugn {
       offset,
     });
 
-    const playlists = playlistSearch?.collection.map(
-      (c): PlaylistInfo => ({
-        name: c.title,
-        apiId: c.id.toString(),
-        images: this.getArtwork(c),
-      })
-    );
+    const playlists = playlistSearch?.collection
+      .map(soundcloudPlaylistToPlaylist);
     const page: PageInfo = {
       offset: offset,
       resultsPerPage: limit,
@@ -109,7 +117,7 @@ export default class SoundcloudPlugn {
       playlist: playlist && {
         name: playlist.title,
         apiId: playlist.id.toString(),
-        images: this.getArtwork(playlist),
+        images: getArtwork(playlist),
       },
     };
   }
@@ -122,6 +130,16 @@ export default class SoundcloudPlugn {
       playlistsPromise,
     ]);
     return { tracks, playlists };
+  }
+
+  async getTopItems(): Promise<SearchAllResult> {
+    const playlists = await this.soundcloud.getTopPlaylistsV2();
+    const playlistInfos = playlists.collection.flatMap(c => c.items.collection.map(soundcloudPlaylistToPlaylist));
+    return {
+      playlists: {
+        items: playlistInfos,
+      },
+    }
   }
 
   async getTrackByUrl(request: GetTrackUrlRequest): Promise<string> {
