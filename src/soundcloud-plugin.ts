@@ -10,7 +10,11 @@ const getArtwork = (track: {
   artwork_url: string | null;
   user: SoundcloudUser;
 }): ImageInfo[] => {
-  let artwork = track.artwork_url ? track.artwork_url : track.user.avatar_url;
+  let artwork = track.artwork_url
+    ? track.artwork_url
+    : track.user?.avatar_url;
+  if (!artwork)
+    return [];
   return [
     { url: artwork, height: 100, width: 100 },
     { url: artwork.replace("-large", "-t500x500"), height: 500, width: 500 },
@@ -133,8 +137,11 @@ export default class SoundcloudPlugn {
   }
 
   async getTopItems(): Promise<SearchAllResult> {
+    console.log("getTopItems");
     const playlists = await this.soundcloud.getTopPlaylistsV2();
+    console.log("playlists", playlists);
     const playlistInfos = playlists.collection.flatMap(c => c.items.collection.map(soundcloudPlaylistToPlaylist));
+    console.log("playlistInfos", playlistInfos);
     return {
       playlists: {
         items: playlistInfos,
