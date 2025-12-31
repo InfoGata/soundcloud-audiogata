@@ -5,8 +5,9 @@
     "module": "esnext",
     "target": "es2015",
     "strict": true,
-    "moduleResolution": "node",
-    "outDir": "./dist",
+    "moduleResolution": "bundler",
+    "noEmit": true,
+    "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "lib": [
       "es6",
@@ -14,14 +15,17 @@
       "es2017",
       "dom"
     ],
+    "paths": {
+      "react": ["./node_modules/preact/compat/"],
+      "react-dom": ["./node_modules/preact/compat/"]
+    },
     "typeRoots": [
         "./node_modules/@types",
         "./node_modules/@infogata"
     ]
   },
   "include": [
-    "src/**/*",
-    "test/**/*"
+    "src/**/*"
   ]
 }
 
