@@ -1,27 +1,30 @@
 import Soundcloud from "./soundcloud";
 import SoundcloudPlugin from "./soundcloud-plugin";
 
-export const init = async () => {
+const DEFAULT_CORS_PROXY = "https://cloudcors.audio-pwa.workers.dev/";
+
+// Create plugin synchronously with default proxy so handlers are immediately available
+const soundcloud = new Soundcloud(DEFAULT_CORS_PROXY);
+const plugin = new SoundcloudPlugin(soundcloud);
+
+application.onSearchAll = plugin.searchAll.bind(plugin);
+application.onSearchTracks = plugin.searchTracks.bind(plugin);
+application.onSearchPlaylists = plugin.searchPlaylists.bind(plugin);
+application.onGetPlaylistTracks = plugin.getPlaylistTracks.bind(plugin);
+application.onGetTrackUrl = plugin.getTrackByUrl.bind(plugin);
+application.onGetTopItems = plugin.getTopItems.bind(plugin);
+
+// Update soundcloud instance based on actual CORS settings
+const init = async () => {
   const corsDisabled = await application.isNetworkRequestCorsDisabled();
-  let corsProxy = await application.getCorsProxy();
+  const corsProxy = await application.getCorsProxy();
 
-  let soundcloud: Soundcloud | undefined;
-  if (!corsProxy) {
-    corsProxy = "https://cloudcors.audio-pwa.workers.dev/";
-  }
   if (corsDisabled) {
-    soundcloud = new Soundcloud();
-  } else {
-    soundcloud = new Soundcloud(corsProxy);
+    plugin.soundcloud = new Soundcloud();
+  } else if (corsProxy) {
+    plugin.soundcloud = new Soundcloud(corsProxy);
   }
-  const plugin = new SoundcloudPlugin(soundcloud);
-
-  application.onSearchAll = plugin.searchAll.bind(plugin);
-  application.onSearchTracks = plugin.searchTracks.bind(plugin);
-  application.onSearchPlaylists = plugin.searchPlaylists.bind(plugin);
-  application.onGetPlaylistTracks = plugin.getPlaylistTracks.bind(plugin);
-  application.onGetTrackUrl = plugin.getTrackByUrl.bind(plugin);
-  application.onGetTopItems = plugin.getTopItems.bind(plugin);
+  // If neither condition is true, keep the default proxy
 };
 
 init();
