@@ -1,5 +1,6 @@
 {
   "id": "B9-GwavJJOQpQXotpLZH",
+  "alias": "soundcloud",
   "name": "Plugin for SoundCloud",
   "version": "1.5.0",
   "script": "dist/index.js",
