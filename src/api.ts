@@ -12,20 +12,26 @@ export class API {
       }
       const response = await application.networkRequest(url);
       const text = await response.text();
-      const urls = text.match(
-        /(?!<script crossorigin src=")https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*\.js)(?=">)/g
-      );
-      let script: string;
-      do {
-        let scriptResponse = await application.networkRequest(
-          urls?.pop() || ""
-        );
-        script = await scriptResponse.text();
-      } while (!script.includes(',client_id:"') && (urls?.length || 0) > 0);
-      this.clientId = script.match(/,client_id:"(\w+)"/)?.[1];
+      // A mobile user agent, which is what Android WebViews send, gets the
+      // mobile site. It embeds the id in its page data and none of its
+      // scripts define it.
+      this.clientId = text.match(/"clientId":"(\w+)"/)?.[1];
+      // The desktop site defines it in one of its script bundles, usually
+      // the last one.
+      const urls =
+        text.match(
+          /(?!<script crossorigin src=")https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*\.js)(?=">)/g
+        ) || [];
+      while (!this.clientId && urls.length > 0) {
+        const scriptResponse = await application.networkRequest(urls.pop()!);
+        const script = await scriptResponse.text();
+        this.clientId = script.match(/,client_id:"(\w+)"/)?.[1];
+      }
 
+      // Thrown rather than returned: every request would otherwise go out
+      // with client_id=undefined and come back empty, with nothing saying why.
       if (!this.clientId) {
-        Promise.reject("Unable to fetch a SoundCloud API key.");
+        throw new Error("Unable to fetch a SoundCloud API key.");
       }
     }
 
