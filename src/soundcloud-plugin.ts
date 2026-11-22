@@ -42,27 +42,31 @@ export default class SoundcloudPlugn {
       apiId: t.id.toString(),
       duration: t.duration / 1000,
       artistName: (t.publisher_metadata as any)?.artist || "",
-      source: t.media.transcodings.find(this.trackFilter.bind(this))?.url,
+      source: this.pickTranscoding(t.media.transcodings)?.url,
       images: getArtwork(t),
     };
   };
 
-  private trackFilter(transcoding: SoundcloudTranscoding) {
-    return this.progressiveFilter(transcoding) || this.hlsFilter(transcoding);
-  }
+  // Ordered by preference. SoundCloud has dropped audio/mpeg transcodings for
+  // many tracks, which now only offer HLS as audio/mp4 (AAC). Such tracks may
+  // also list an "audio/mpegurl" HLS transcoding, but its endpoint returns 404,
+  // so it is deliberately not matched.
+  private transcodingFilters: ((t: SoundcloudTranscoding) => boolean)[] = [
+    (t) =>
+      t.format.protocol === "progressive" && t.format.mime_type === "audio/mpeg",
+    (t) => t.format.protocol === "hls" && t.format.mime_type === "audio/mpeg",
+    (t) =>
+      t.format.protocol === "hls" && t.format.mime_type.startsWith("audio/mp4"),
+  ];
 
-  private progressiveFilter(transcoding: SoundcloudTranscoding) {
-    return (
-      transcoding.format.mime_type === "audio/mpeg" &&
-      transcoding.format.protocol === "progressive"
-    );
-  }
-
-  private hlsFilter(transcoding: SoundcloudTranscoding) {
-    return (
-      transcoding.format.mime_type === "audio/mpeg" &&
-      transcoding.format.protocol === "hls"
-    );
+  private pickTranscoding(
+    transcodings: SoundcloudTranscoding[] | undefined
+  ): SoundcloudTranscoding | undefined {
+    for (const filter of this.transcodingFilters) {
+      const match = transcodings?.find(filter);
+      if (match) return match;
+    }
+    return undefined;
   }
 
   async searchTracks(request: SearchRequest): Promise<SearchTrackResult> {
@@ -158,14 +162,7 @@ export default class SoundcloudPlugn {
 
     let clientId = await this.soundcloud.api.getClientId();
     const track = await this.soundcloud.getTrackV2(request.apiId || "");
-    let source =
-      track?.media.transcodings.find(this.progressiveFilter.bind(this))?.url ||
-      "";
-    // Check if there is an hls source
-    if (!source) {
-      source =
-        track?.media.transcodings.find(this.hlsFilter.bind(this))?.url || "";
-    }
+    const source = this.pickTranscoding(track?.media.transcodings)?.url || "";
     let url = "";
     let connect = source?.includes("secret_token")
       ? `&client_id=${clientId}`
